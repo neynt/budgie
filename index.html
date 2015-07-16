@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
 <head>
-  <title>le chat</title>
+  <title>lain game</title>
   <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { font: 16px Helvetica, sans-serif; }
@@ -25,12 +25,12 @@ form button { width: 50px; background: #fff; border: none; float: right; }
     $('form').submit(function() {
       var val = $('#m').val();
       if (val) {
-        socket.emit('chat message', val);
+        socket.emit('CHATMSG', val);
         $('#m').val('');
       }
       return false;
     });
-    socket.on('chat message', function(msg) {
+    socket.on('CHATMSG', function(msg) {
       $('#messages').append($('<li>').text(msg));
       window.scrollTo(0, document.body.scrollHeight);
     });
