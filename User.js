@@ -37,7 +37,7 @@ User.prototype.look = function() {
   var users = '';
   room.users.forEach(function(user, i) {
     if (user != this) {
-      if (i > 0) {
+      if (users) {
         users += ', ';
       }
       users += user.name;
@@ -163,10 +163,35 @@ User.prototype.handle_msg_normal = function(msg) {
     } else {
       this.send('Go which direction?');
     }
-  } else if (cmd == 'tp') {
+  } else if (cmd == 'goto') {
     var room_id = chunks[1];
     if (room_id in global.rooms) {
+      var old_room = this.room;
+      global.rooms[room_id].broadcast(
+        this.name
+        + ' appears!');
       this.move_to_room(global.rooms[room_id]);
+      old_room.broadcast(
+        this.name
+        + ' disappears!');
+      this.look();
+    } else {
+      this.send('No such room.');
+    }
+  } else if (cmd == 'tp') {
+    var username = chunks[1];
+    if (username in global.users) {
+      var old_room = this.room;
+      global.users[username].room.broadcast(
+        this.name
+        + ' appears!');
+      this.move_to_room(global.users[username].room);
+      old_room.broadcast(
+        this.name
+        + ' disappears!');
+      this.look();
+    } else {
+      this.send('No such user.');
     }
   } else if (cmd == 'create') {
     if (chunks[1]) {
@@ -218,6 +243,29 @@ User.prototype.handle_msg_normal = function(msg) {
         + '.');
     } else {
       this.send('Usage: link [direction] [room id]');
+    }
+  } else if (cmd === 'unlink') {
+    var dir = direction.parse(chunks[1]);
+    if (dir in this.room.exits) {
+      var other_room = this.room.exits[dir];
+      if (other_room.exits[direction.opposite[dir]] == this.room) {
+        delete other_room.exits[direction.opposite[dir]];
+      }
+      delete this.room.exits[dir];
+      this.room.broadcast(
+        this.name
+        + ' removes the exit '
+        + direction.to_the[dir]
+        + '.');
+      other_room.broadcast(
+        this.name
+        + ' removes the exit from '
+        + direction.the[dir]
+        + '.');
+    } else if (dir) {
+      this.send('There is no exit to unlink in that direction.');
+    } else {
+      this.send('Invalid direction.');
     }
   } else if (cmd == 'help') {
     var arg = chunks[1];
