@@ -35,6 +35,10 @@ form button { width: 50px; background: #fff; border: none; float: right; }
       $('#messages').append($('<li>').text(msg));
       window.scrollTo(0, document.body.scrollHeight);
     });
+    socket.on('disconnect', function() {
+      $('#messages').append($('<li>').text('Disconnected.'));
+      window.scrollTo(0, document.body.scrollHeight);
+    });
   </script>
 </body>
 </html>

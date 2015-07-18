@@ -70,5 +70,6 @@ module.exports = {
   to_word: to_word,
   to_the: to_the,
   the: the,
+  direction_dict: direction_dict,
   parse: parse
 }

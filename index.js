@@ -19,7 +19,8 @@ function save_to_db() {
     var user = global.users[username];
     // do a sorta-deep-copy on the users
     user_data[username] = {
-      password: user.password,
+      passhash: user.passhash,
+      salt: user.salt,
       room_id: user.room.id
     }
   }
@@ -36,16 +37,19 @@ function save_to_db() {
       exits: exit_data
     }
   }
-  fs.writeFileSync('./saved_users.json', JSON.stringify(user_data));
-  fs.writeFileSync('./saved_rooms.json', JSON.stringify(room_data));
+  fs.writeFileSync('./saved_data.json', JSON.stringify({
+    users: user_data,
+    rooms: room_data
+  }));
   console.log('saved');
 }
 
 function load_from_db() {
-  if (fs.existsSync('./saved_users.json') && fs.existsSync('./saved_rooms.json')) {
+  if (fs.existsSync('./saved_data.json')) {
     try {
-      var user_data = JSON.parse(fs.readFileSync('./saved_users.json', 'utf8'));
-      var room_data = JSON.parse(fs.readFileSync('./saved_rooms.json', 'utf8'));
+      var data = JSON.parse(fs.readFileSync('./saved_data.json', 'utf-8'));
+      var user_data = data.users;
+      var room_data = data.rooms;
 
       for (room_id in room_data) {
         var room = new Room(room_id);
@@ -62,7 +66,8 @@ function load_from_db() {
       }
       for (username in user_data) {
         var user = new User(username);
-        user.password = user_data[username].password;
+        user.passhash = user_data[username].passhash;
+        user.salt = user_data[username].salt;
         user.room = global.rooms[user_data[username].room_id];
         global.users[username] = user;
       }
@@ -76,7 +81,7 @@ function load_from_db() {
 }
 
 load_from_db();
-setInterval(save_to_db, 10000);
+setInterval(save_to_db, 60000);
 
 app.get('/', function(req, res) {
   res.sendFile(__dirname + '/index.html');
@@ -85,7 +90,7 @@ app.get('/', function(req, res) {
 io.on('connection', function(socket) {
   var user = null;
   console.log('a user connected');
-  socket.emit('CHATMSG', 'Enter your name.');
+  socket.emit('CHATMSG', 'What is your name?');
   socket.on('disconnect', function() {
     console.log('user disconnected');
     if (user) {
