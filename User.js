@@ -130,10 +130,18 @@ User.prototype.handle_msg_normal = function(msg) {
     this.room.broadcast(this.name + ' ' + emote);
   } else if (cmd == 'say') {
     var chat_msg = chunks.slice(1).join(' ');
-    this.room.broadcast(this.name + ': ' + chat_msg);
+    if (chat_msg.length > 80000) {
+      this.send('Your message is too long.');
+    } else {
+      this.room.broadcast(this.name + ': ' + chat_msg);
+    }
   } else if (cmd == 'shout') {
     var chat_msg = chunks.slice(1).join(' ');
-    io.emit('CHATMSG', this.name + ' shouts: ' + chat_msg);
+    if (chat_msg.length > 80000) {
+      this.send('Your message is too long.');
+    } else {
+      io.emit('CHATMSG', this.name + ' shouts: ' + chat_msg);
+    }
   } else if (cmd == 'nameroom') {
     var name = chunks.slice(1).join(' ');
     this.room.change_name(name, this);
