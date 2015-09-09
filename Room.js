@@ -12,6 +12,7 @@ function Room(id) {
   this.users = [];
   global.rooms[this.id] = this;
 };
+
 Room.prototype.change_desc = function(desc, changer) {
   this.desc = desc;
   this.users.forEach(function(user) {
@@ -19,11 +20,13 @@ Room.prototype.change_desc = function(desc, changer) {
     user.look();
   });
 };
+
 Room.prototype.change_name = function(name, changer) {
   var old_name = this.name;
   this.name = name;
   this.broadcast(changer.name + ' changes the name of this room to "' + name + '".');
 };
+
 Room.prototype.broadcast = function(msg) {
   this.users.forEach(function(user) {
     user.send(msg);
