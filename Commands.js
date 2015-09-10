@@ -39,9 +39,12 @@ Commands.shout = {
     if (chat_msg.length > 80000) {
       player.send('Your message is too long.');
     } else {
-      global.users.forEach(function(user) {
-        user.send(player.name + ' shouts: ' + chat_msg);
-      });
+      for (var username in global.users) {
+        var user = global.users[username];
+        if (user.socket) {
+          global.users[username].send(player.name + ' shouts: ' + chat_msg);
+        }
+      }
     }
   }
 };

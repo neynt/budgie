@@ -6,8 +6,8 @@ function Room(id) {
       this.id = Math.floor((7 * Math.random() + 1) * Math.pow(36, 7)).toString(36);
     } while (this.id in global.rooms);
   }
-  this.name = 'Empty room';
-  this.desc = 'There is nothing here.';
+  this.name = 'empty';
+  this.desc = '';
   this.exits = {};
   this.users = [];
   global.rooms[this.id] = this;
