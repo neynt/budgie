@@ -22,6 +22,8 @@ form button { width: 50px; background: #fff; border: none; float: right; }
   <script src="https://cdn.socket.io/socket.io-1.3.5.js"></script>
   <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
   <script>
+  // see this, this is a mfkn' closure
+  (function() {
     var socket = io();
     $('form').submit(function() {
       var val = $('#m').val();
@@ -39,6 +41,7 @@ form button { width: 50px; background: #fff; border: none; float: right; }
       $('#messages').append($('<li>').text('Disconnected.'));
       window.scrollTo(0, document.body.scrollHeight);
     });
+  })();
   </script>
 </body>
 </html>

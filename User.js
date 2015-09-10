@@ -14,20 +14,24 @@ function User(name) {
   this.room = global.rooms['center'];
   this.msg_handler = this.handle_msg_normal;
 };
+
 User.prototype.setPassword = function(password) {
   this.salt = new Date().getTime().toString(36);
   var hasher = crypto.createHash('sha512');
   hasher.update(this.salt + password);
   this.passhash = hasher.digest('hex');
 };
+
 User.prototype.verifyPassword = function(password) {
   var hasher = crypto.createHash('sha512');
   hasher.update(this.salt + password);
   return hasher.digest('hex') === this.passhash;
 };
+
 User.prototype.send = function(msg) {
   this.socket.emit('CHATMSG', msg);
 };
+
 User.prototype.look = function() {
   var room = this.room;
   var msg = '[' + room.name + '] ';
@@ -62,20 +66,24 @@ User.prototype.look = function() {
     this.send(' Exits: ' + exits + '.');
   }
 };
+
 User.prototype.enter_room = function(room) {
   room.users.push(this);
   this.room = room;
 };
+
 User.prototype.leave_room = function() {
   var idx = this.room.users.indexOf(this);
   if (idx > -1) {
     this.room.users.splice(idx, 1);
   }
 };
+
 User.prototype.move_to_room = function(room) {
   this.leave_room();
   this.enter_room(room);
 };
+
 User.prototype.move_in_dir = function(dir) {
   if (dir in this.room.exits) {
     var old_room = this.room;
@@ -97,6 +105,7 @@ User.prototype.move_in_dir = function(dir) {
     this.send('You see no exit in that direction.');
   }
 };
+
 User.prototype.create_new_room = function() {
   var old_room = this.room;
   var new_room = new Room();
@@ -104,6 +113,7 @@ User.prototype.create_new_room = function() {
   this.move_to_room(new_room);
   old_room.broadcast(this.name + ' disappears.');
 };
+
 User.prototype.create_room_in_dir = function(dir) {
   if (!(dir in this.room.exits)) {
     var old_room = this.room;
@@ -117,6 +127,7 @@ User.prototype.create_room_in_dir = function(dir) {
     this.send('There is already a room in that direction.');
   }
 };
+
 User.prototype.handle_msg_normal = function(msg) {
   console.log(this.name + ': ' + msg);
 
@@ -135,6 +146,7 @@ User.prototype.handle_msg_normal = function(msg) {
     this.send('Unrecognized command. Type "help" for help.');
   }
 };
+
 User.prototype.handle_msg_ask_password = function(msg) {
   if (this.verifyPassword(msg)) {
     this.come_online();
@@ -142,6 +154,7 @@ User.prototype.handle_msg_ask_password = function(msg) {
     this.login_socket.emit('CHATMSG', 'Incorrect. Please try again.');
   }
 };
+
 User.prototype.handle_msg_new_password = function(msg) {
   if (msg.length < 3) {
     this.login_socket.emit('CHATMSG', 'Your password needs to be at least 3 characters long.');
@@ -151,9 +164,11 @@ User.prototype.handle_msg_new_password = function(msg) {
     this.come_online();
   }
 };
+
 User.prototype.handle_msg = function(msg) {
   this.msg_handler(msg);
 };
+
 User.prototype.come_online = function() {
   this.socket = this.login_socket;
   io.emit('CHATMSG', this.name + ' has come online.');
@@ -163,6 +178,7 @@ User.prototype.come_online = function() {
   this.enter_room(this.room);
   this.look();
 };
+
 User.prototype.login = function(socket) {
   this.login_socket = socket;
   if (this.passhash) {

@@ -90,6 +90,7 @@ app.get('/', function(req, res) {
 io.on('connection', function(socket) {
   var user = null;
   console.log('a user connected');
+  socket.emit('CHATMSG', 'Welcome to Salty Mush.');
   socket.emit('CHATMSG', 'What is your name?');
   socket.on('disconnect', function() {
     console.log('user disconnected');

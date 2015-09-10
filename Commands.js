@@ -83,7 +83,7 @@ Commands.descroom = {
   ],
   run: function(player, args) {
     var desc = args.join(' ');
-    player.room.change_desc(desc, player);
+    player.room.changeDesc(desc, player);
   }
 };
 
@@ -286,6 +286,11 @@ Commands.create = {
       return;
     }
 
+    if (args[0] === 'new') {
+      player.create_new_room();
+      return;
+    }
+
     var dir = direction.parse(args[0]);
 
     if (!dir) {
@@ -294,7 +299,6 @@ Commands.create = {
     }
 
     if (args[0] === 'new') {
-      player.create_new_room();
     } else {
       player.create_room_in_dir(dir);
     }

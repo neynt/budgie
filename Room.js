@@ -13,7 +13,7 @@ function Room(id) {
   global.rooms[this.id] = this;
 };
 
-Room.prototype.change_desc = function(desc, changer) {
+Room.prototype.changeDesc = function(desc, changer) {
   this.desc = desc;
   this.users.forEach(function(user) {
     user.send(changer.name + ' changes the description of this room.');
