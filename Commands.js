@@ -288,6 +288,7 @@ Commands.create = {
 
     if (args[0] === 'new') {
       player.create_new_room();
+      player.look();
       return;
     }
 
@@ -313,17 +314,16 @@ Commands.help = {
   ],
   run: function(player, args) {
     if (args.length === 0) {
-      player.send('Basic commands: look, go');
-      player.send('Communication: say, shout, me')
-      player.send('Advanced movement: goto, tp');
-      player.send('Editing: create, id, nameroom, descroom, link, unlink');
-      player.send('Type "help [command]" for more detailed help about a command.');
-      return;
+      player.sendMsg([
+        'Basic commands: look, go',
+        'Communication: say, shout, me',
+        'Advanced movement: goto, tp',
+        'Editing: create, id, nameroom, descroom, link, unlink',
+        'Type "help [command]" for more detailed help about a command.'
+      ]);
     }
-    if (args[0] in Commands) {
-      Commands[args[0]].help_text.forEach(function(line) {
-        player.send(line);
-      });
+    else if (args[0] in Commands) {
+      player.sendMsg(Commands[args[0]].help_text);
     }
   }
 }

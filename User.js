@@ -32,11 +32,19 @@ User.prototype.send = function(msg) {
   this.socket.emit('CHATMSG', msg);
 };
 
+User.prototype.sendMsg = function(lines) {
+  this.socket.emit('GAMEMSG', {
+    lines: lines
+  });
+};
+
 User.prototype.look = function() {
   var room = this.room;
-  var msg = '[' + room.name + '] ';
-  msg += room.desc;
-  this.send(msg);
+
+  var msg_lines = [];
+  msg_lines.push(
+    '[' + room.name + '] ' + room.desc
+  );
 
   // Users
   var users = '';
@@ -49,7 +57,9 @@ User.prototype.look = function() {
     }
   }, this);
   if (users) {
-    this.send('Users here: ' + users + '.');
+    msg_lines.push(
+      'Users here: ' + users + '.'
+    )
   }
 
   // Exits
@@ -63,8 +73,12 @@ User.prototype.look = function() {
     }
   });
   if (exits) {
-    this.send(' Exits: ' + exits + '.');
+    msg_lines.push(
+      'Exits: ' + exits + '.'
+    );
   }
+
+  this.sendMsg(msg_lines);
 };
 
 User.prototype.enter_room = function(room) {

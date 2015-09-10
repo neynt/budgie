@@ -4,18 +4,48 @@
   <title>salty mush</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
+
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body { font: 16px Helvetica, sans-serif; }
+body {
+  font: 16px Helvetica, sans-serif;
+  overflow: hidden;
+}
 form { padding: 3px; position: fixed; bottom: 0; width: 100%; background: #ddd; }
 form input, form button { padding: 10px; }
 form input { border: 0; width: 100%; margin-right: .5%; float: left; }
 form button { width: 50px; background: #fff; border: none; float: right; }
-#messages { list-style-type: none; margin: 0 0 45px; padding: 0; }
-#messages li { padding: 5px 10px; border-bottom: 1px solid #ddd; }
+#messages { margin: 0 0 45px; padding: 0; }
+
+#messages div.msg_block {
+  padding: 3px 10px;
+  border-bottom: 1px solid #ddd;
+
+  animation-duration: 1s;
+  animation-timing-function: cubic-bezier(0.15, 0.05, 0.25, 1);
+  animation-name: new_msg;
+}
+#messages div.msg_block p {
+  padding: 3px 0;
+}
+#messages div.client_side_msg {
+  background: #ddd;
+}
+
+@keyframes new_msg {
+  from {
+    border-left: 10px solid rgba(69, 69, 69, 1.0);
+    margin-right: -10px;
+  }
+  to {
+    border-left: 0px solid rgba(69, 69, 69, 0.0);
+    margin-right: 0px;
+  }
+}
+
   </style>
 </head>
 <body>
-  <ul id="messages"></ul>
+  <div id="messages"></ul>
   <form action="">
     <input id="m" autocomplete="off" />
   </form>
@@ -34,11 +64,24 @@ form button { width: 50px; background: #fff; border: none; float: right; }
       return false;
     });
     socket.on('CHATMSG', function(msg) {
-      $('#messages').append($('<li>').text(msg));
+      $('#messages').append(
+        $('<div>').addClass('msg_block').append(
+          $('<p>').text(msg)));
+      window.scrollTo(0, document.body.scrollHeight);
+    });
+    socket.on('GAMEMSG', function(msg) {
+      var msg_div = $('<div>');
+      msg_div.addClass('msg_block');
+      msg.lines.forEach(function(line) {
+        msg_div.append($('<p>').text(line));
+      });
+      $('#messages').append(msg_div);
       window.scrollTo(0, document.body.scrollHeight);
     });
     socket.on('disconnect', function() {
-      $('#messages').append($('<li>').text('Disconnected.'));
+      $('#messages').append(
+        $('<div>').addClass('msg_block client_side_msg').append(
+          $('<p>').text('Disconnected.')));
       window.scrollTo(0, document.body.scrollHeight);
     });
   })();
