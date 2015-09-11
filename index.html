@@ -8,7 +8,7 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body {
   font: 16px Helvetica, sans-serif;
-  overflow: hidden;
+  overflow-x: hidden;
 }
 form { padding: 3px; position: fixed; bottom: 0; width: 100%; background: #ddd; }
 form input, form button { padding: 10px; }
@@ -20,7 +20,7 @@ form button { width: 50px; background: #fff; border: none; float: right; }
   padding: 4px 10px;
   border-bottom: 1px solid #ddd;
 
-  animation-duration: 1.0s;
+  animation-duration: 2.0s;
   animation-timing-function: cubic-bezier(0.15, 0.05, 0.25, 1);
   animation-name: new_msg;
 }
@@ -33,8 +33,8 @@ form button { width: 50px; background: #fff; border: none; float: right; }
 
 @keyframes new_msg {
   from {
-    border-left: 5px solid rgba(69, 69, 69, 1.0);
-    margin-right: -5px;
+    border-left: 10px solid rgba(69, 69, 69, 1.0);
+    margin-right: -10px;
   }
   to {
     border-left: 0px solid rgba(69, 69, 69, 0.0);

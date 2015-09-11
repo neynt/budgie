@@ -223,6 +223,8 @@ Commands.link = {
       return;
     }
 
+    var other_room = global.rooms[id];
+
     if (direction.opposite[dir] in other_room.exits) {
       player.send(
         'The other room already has an exit '
@@ -232,11 +234,10 @@ Commands.link = {
     }
 
     // Success!
-    var other_room = global.rooms[id];
     player.room.exits[dir] = other_room;
     other_room.exits[direction.opposite[dir]] = player.room;
 
-  // TODO: refactor creates messages
+    // TODO: refactor creates messages
     player.room.broadcast(
       player.name + ' creates an exit ' + direction.to_the[dir] + '.');
     other_room.broadcast(
@@ -312,7 +313,7 @@ Commands.create = {
 Commands.help = {
   help_text: [
     'Usage: help [command]',
-    'Tells you how to use the specified command. If no command is specified,'
+    'Tells you how to use the specified command. If no command is specified, '
     + 'gives you a list of useful commands. Also, haha.'
   ],
   run: function(player, args) {
