@@ -21,7 +21,7 @@ form button { width: 50px; background: #fff; border: none; float: right; }
   border-bottom: 1px solid #ddd;
 
   animation-duration: 2.0s;
-  animation-timing-function: cubic-bezier(0.95, 0, 0.25, 1);
+  animation-timing-function: cubic-bezier(0.15, 0, 0.25, 1);
   animation-name: new_msg;
 }
 #messages div.msg_block p {
@@ -32,11 +32,15 @@ form button { width: 50px; background: #fff; border: none; float: right; }
 }
 
 @keyframes new_msg {
-  from {
+  0% {
     border-left: 10px solid rgba(69, 69, 69, 1.0);
     margin-right: -10px;
   }
-  to {
+  50% {
+    border-left: 10px solid rgba(69, 69, 69, 1.0);
+    margin-right: -10px;
+  }
+  100% {
     border-left: 0px solid rgba(69, 69, 69, 0.0);
     margin-right: 0px;
   }
