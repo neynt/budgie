@@ -34,6 +34,7 @@ function save_to_db() {
     room_data[room_id] = {
       name: room.name,
       desc: room.desc,
+      img: room.img,
       exits: exit_data
     }
   }
@@ -55,6 +56,7 @@ function load_from_db() {
         var room = new Room(room_id);
         room.name = room_data[room_id].name;
         room.desc = room_data[room_id].desc;
+        room.img = room_data[room_id].img;
         global.rooms[room_id] = room;
       }
       for (room_id in room_data) {
@@ -90,6 +92,8 @@ app.get('/', function(req, res) {
 io.on('connection', function(socket) {
   var user = null;
   console.log('a user connected');
+  socket.emit('IMGMSG', 'http://i.imgur.com/FPZQECH.png');
+  //socket.emit('IMGMSG', 'https://i.imgur.com/5b4LCCT.png');
   socket.emit('CHATMSG', 'Welcome to Salty Mush.');
   socket.emit('CHATMSG', 'What is your name?');
   socket.on('disconnect', function() {
@@ -98,6 +102,7 @@ io.on('connection', function(socket) {
       io.emit('CHATMSG', user.name + ' has disconnected.');
       user.leave_room();
       user.room.broadcast(user.name + ' disappears.');
+      user.online = false;
     }
   });
   socket.on('CHATMSG', function handle_msg_not_logged_in(msg) {

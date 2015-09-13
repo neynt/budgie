@@ -7,10 +7,14 @@ var Commands = require('./Commands.js')();
 
 function User(name) {
   this.name = name; // user's name
+  this.desc = 'It is a human.'; // user's description
+
   this.passhash = null; // hash(salt + password)
   this.salt = null; // salt for password
+
   this.socket = null;  // user's authoritative socket
   this.login_socket = null;  // temporary socket for logging in
+  this.online = false;
   this.room = global.rooms['center'];
   this.msg_handler = this.handle_msg_normal;
 };
@@ -32,10 +36,18 @@ User.prototype.send = function(msg) {
   this.socket.emit('CHATMSG', msg);
 };
 
+User.prototype.sendImg = function(img_url) {
+  this.socket.emit('IMGMSG', img_url);
+};
+
 User.prototype.sendMsg = function(lines) {
   this.socket.emit('GAMEMSG', {
     lines: lines
   });
+};
+
+User.prototype.getDesc = function() {
+  return this.desc;
 };
 
 User.prototype.look = function() {
@@ -79,6 +91,11 @@ User.prototype.look = function() {
   }
 
   this.sendMsg(msg_lines);
+
+  // Images
+  if (room.img) {
+    this.sendImg(room.img);
+  }
 };
 
 User.prototype.enter_room = function(room) {
@@ -97,6 +114,24 @@ User.prototype.move_to_room = function(room) {
   this.leave_room();
   this.enter_room(room);
 };
+
+User.prototype.run_command = function(msg) {
+  var chunks = msg.split(' ');
+  if (!chunks) return;
+
+  var args = chunks.slice(1);
+  var cmd = chunks[0].toLowerCase();
+
+  if (cmd in Commands) {
+    Commands[cmd].run(this, args);
+  } else if (cmd in direction.direction_dict) {
+    var dir = direction.parse(chunks[0]);
+    this.move_in_dir(dir);
+  } else {
+    return false;  // command was not found
+  }
+  return true;  // command was successful
+}
 
 User.prototype.move_in_dir = function(dir) {
   if (dir in this.room.exits) {
@@ -145,18 +180,7 @@ User.prototype.create_room_in_dir = function(dir) {
 User.prototype.handle_msg_normal = function(msg) {
   console.log(this.name + ': ' + msg);
 
-  var chunks = msg.split(' ');
-  if (!chunks) return;
-
-  var args = chunks.slice(1);
-  var cmd = chunks[0].toLowerCase();
-
-  if (cmd in Commands) {
-    Commands[cmd].run(this, args);
-  } else if (cmd in direction.direction_dict) {
-    var dir = direction.parse(chunks[0]);
-    this.move_in_dir(dir);
-  } else {
+  if (!this.run_command(msg)) {
     this.send('Unrecognized command. Type "help" for help.');
   }
 };
@@ -185,8 +209,11 @@ User.prototype.handle_msg = function(msg) {
 
 User.prototype.come_online = function() {
   this.socket = this.login_socket;
+  this.online = true;
+
+  // TODO: remove ios
   io.emit('CHATMSG', this.name + ' has come online.');
-  this.send('Type "help" for help.');
+  this.run_command('who');
   this.room.broadcast(this.name + ' appears.');
   this.msg_handler = this.handle_msg_normal;
   this.enter_room(this.room);

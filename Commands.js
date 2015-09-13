@@ -64,6 +64,26 @@ Commands.me = {
   }
 }
 
+Commands.who = {
+  help_text: [
+    'Usage: who',
+    'Shows you a list of players who are online.'
+  ],
+  run: function(player, args) {
+    var players_str = '';
+    for (username in global.users) {
+      var user = global.users[username];
+      if (user.online) {
+        if (players_str) {
+          players_str += ', ';
+        }
+        players_str += user.name;
+      }
+    }
+    player.send('Online players: ' + players_str);
+  }
+}
+
 Commands.nameroom = {
   help_text: [
     'Usage: nameroom [...]',
@@ -74,7 +94,7 @@ Commands.nameroom = {
       player.send('Name this room what?');
     } else {
       var name = args.join(' ');
-      player.room.change_name(name, player);
+      player.room.changeName(name, player);
     }
   }
 };
@@ -85,20 +105,51 @@ Commands.descroom = {
     'Changes the description of the current room.'
   ],
   run: function(player, args) {
-    var desc = args.join(' ');
-    player.room.changeDesc(desc, player);
+    if (args.length === 0) {
+      player.send('Describe this room what?');
+    } else {
+      var desc = args.join(' ');
+      player.room.changeDesc(desc, player);
+    }
+  }
+};
+
+Commands.roomimage = {
+  help_text: [
+    'Usage: roomimage [image url]',
+    "Sets the room's image to the image at the given URL. Use \"roomimage none\" to remove the image."
+  ],
+  run: function(player, args) {
+    if (args.length === 0) {
+      player.send('Set room image to what?');
+    } else {
+      var img = args.join(' ');
+      if (img === 'none') {
+        img = '';
+      }
+      player.room.changeImg(img, player);
+    }
   }
 };
 
 Commands.look = {
   help_text: [
-    'Usage: look',
-    'Looks around your current room.'
+    'Usage: look (target)',
+    'Looks at the given target. If not given, looks around your current room.'
   ],
   run: function(player, args) {
-    player.look();
+    if (args.length === 0) {
+      player.look();
+    } else {
+      var target_name = args.join(' ');
+      if (player.room.lookAt(target_name, player)) {
+        // success!
+      } else {
+        player.send('There is no ' + target_name + ' here.');
+      }
+    }
   }
-}
+};
 
 Commands.id = {
   help_text: [
@@ -108,7 +159,7 @@ Commands.id = {
   run: function(player, args) {
     player.send('id of ' + player.room.name + ' is ' + player.room.id);
   }
-}
+};
 
 Commands.go = {
   help_text: [
@@ -128,7 +179,7 @@ Commands.go = {
       player.send('Invalid direction.');
     }
   }
-}
+};
 
 Commands.goto = {
   help_text: [
@@ -156,7 +207,7 @@ Commands.goto = {
       }
     }
   }
-}
+};
 
 Commands.tp = {
   help_text: [
@@ -184,7 +235,7 @@ Commands.tp = {
       player.send('No such user.');
     }
   }
-}
+};
 
 Commands.link = {
   help_text: [
@@ -243,7 +294,7 @@ Commands.link = {
     other_room.broadcast(
       player.name + ' creates an exit from ' + direction.the[direction.opposite[dir]] + '.');
   }
-}
+};
 
 Commands.unlink = {
   help_text: [
@@ -256,7 +307,7 @@ Commands.unlink = {
       return;
     }
 
-    var dir = direction.parse(chunks[1]);
+    var dir = direction.parse(args[0]);
 
     if (!dir) {
       player.send('Invalid direction.');
@@ -277,7 +328,7 @@ Commands.unlink = {
     other_room.broadcast(
       player.name + ' removes the exit from ' + direction.the[dir] + '.');
   }
-}
+};
 
 Commands.create = {
   help_text: [
@@ -308,7 +359,7 @@ Commands.create = {
       player.create_room_in_dir(dir);
     }
   }
-}
+};
 
 Commands.help = {
   help_text: [
@@ -320,9 +371,10 @@ Commands.help = {
     if (args.length === 0) {
       player.sendMsg([
         'Basic commands: look, go',
-        'Communication: say, shout, me',
+        'Socializing: say, shout, me, descself',
+        'Game info: who, help',
         'Advanced movement: goto, tp',
-        'Editing: create, id, nameroom, descroom, link, unlink',
+        'Building: create, id, nameroom, descroom, roomimage, link, unlink',
         'Type "help [command]" for more detailed help about a command.'
       ]);
     }
@@ -330,7 +382,7 @@ Commands.help = {
       player.sendMsg(Commands[args[0]].help_text);
     }
   }
-}
+};
 
 module.exports = function() {
   return Commands;

@@ -17,15 +17,24 @@ form button { width: 50px; background: #fff; border: none; float: right; }
 #messages { margin: 0 0 45px; padding: 0; }
 
 #messages div.msg_block {
-  padding: 4px 10px;
+  padding: 5px 0;
   border-bottom: 1px solid #ddd;
 
-  animation-duration: 3.0s;
-  animation-timing-function: cubic-bezier(0.15, 0, 0.25, 1);
+  animation-duration: 4.5s;
+  animation-timing-function: cubic-bezier(0.1, 0, 0.25, 1);
   animation-name: new_msg;
 }
+#messages div.msg_block img {
+  padding: 4px 10px;
+  display: block;
+  max-width: 100%;
+}
+#messages div.msg_block img.fullframe {
+  margin: -5px 0;
+  padding: 0;
+}
 #messages div.msg_block p {
-  padding: 3px 0;
+  padding: 4px 10px;
 }
 #messages div.client_side_msg {
   background: #ddd;
@@ -36,8 +45,8 @@ form button { width: 50px; background: #fff; border: none; float: right; }
     border-left: 10px solid rgba(69, 69, 69, 1.0);
     margin-right: -10px;
   }
-  70% {
-    border-left: 10px solid rgba(69, 69, 69, 1.0);
+  80% {
+    border-left: 10px solid rgba(69, 69, 69, 0.5);
     margin-right: -10px;
   }
   100% {
@@ -58,6 +67,11 @@ form button { width: 50px; background: #fff; border: none; float: right; }
   <script>
   // see this, this is a mfkn' closure
   (function() {
+
+    function scrollToBottom() {
+      window.scrollTo(0, document.body.scrollHeight);
+    }
+
     var socket = io();
     $('form').submit(function() {
       var val = $('#m').val();
@@ -71,7 +85,16 @@ form button { width: 50px; background: #fff; border: none; float: right; }
       $('#messages').append(
         $('<div>').addClass('msg_block').append(
           $('<p>').text(msg)));
-      window.scrollTo(0, document.body.scrollHeight);
+      scrollToBottom();
+    });
+    socket.on('IMGMSG', function(imgurl) {
+      var image = $('<img>').attr('src', imgurl);
+      $('#messages').append(
+        $('<div>').addClass('msg_block').append(
+          image));
+      image.load(scrollToBottom);
+      image.error(scrollToBottom);
+      scrollToBottom();
     });
     socket.on('GAMEMSG', function(msg) {
       var msg_div = $('<div>');
@@ -80,13 +103,13 @@ form button { width: 50px; background: #fff; border: none; float: right; }
         msg_div.append($('<p>').text(line));
       });
       $('#messages').append(msg_div);
-      window.scrollTo(0, document.body.scrollHeight);
+      scrollToBottom();
     });
     socket.on('disconnect', function() {
       $('#messages').append(
         $('<div>').addClass('msg_block client_side_msg').append(
           $('<p>').text('Disconnected.')));
-      window.scrollTo(0, document.body.scrollHeight);
+      scrollToBottom();
     });
   })();
   </script>
