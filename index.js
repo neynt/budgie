@@ -118,7 +118,7 @@ io.on('connection', function(socket) {
       }
       if (good_name) {
         var name = msg.toLowerCase();
-        if (msg in global.users) {
+        if (name in global.users) {
           user = global.users[name];
         }
         else {
