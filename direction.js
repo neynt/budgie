@@ -1,5 +1,5 @@
 // Display order in the UI. Also, a nice list of all standard directions.
-var in_order = ['n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw', 'u', 'd', 'i', 'o'];
+var in_order = ['n', 's', 'e', 'w', 'ne', 'sw', 'nw', 'se', 'u', 'd', 'i', 'o'];
 
 // Pairs of opposite directions.
 var pairs = [

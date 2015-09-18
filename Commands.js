@@ -1,6 +1,8 @@
 // Player enterable commands.
 
 var direction = require('./direction.js');
+var World = require('./World.js')();
+var Room = require('./Room.js')();
 
 var Commands = {}
 
@@ -39,12 +41,7 @@ Commands.shout = {
     if (chat_msg.length > 80000) {
       player.send('Your message is too long.');
     } else {
-      for (var username in global.users) {
-        var user = global.users[username];
-        if (user.socket) {
-          global.users[username].send(player.name + ' shouts: ' + chat_msg);
-        }
-      }
+      World.broadcast(player.name + ' shouts: ' + chat_msg);
     }
   }
 };
@@ -60,6 +57,22 @@ Commands.me = {
     } else {
       var emote = args.join(' ');
       player.room.broadcast(player.name + ' ' + emote);
+    }
+  }
+}
+
+Commands.descself = {
+  help_text: [
+    'Usage: descself [...]',
+    "Sets your character's description. Others will see this description when they look at your character."
+  ],
+  run: function(player, args) {
+    if (args.length === 0) {
+      player.send('Describe self what?');
+    } else {
+      var desc = args.join(' ');
+      player.setDesc(desc);
+      player.send('Described self as "' + desc + '"');
     }
   }
 }
@@ -173,10 +186,12 @@ Commands.go = {
     }
 
     var dir = direction.parse(args[0]);
-    if (dir) {
+    if (dir in player.room.exits) {
       player.move_in_dir(dir);
-    } else {
-      player.send('Invalid direction.');
+      player.send('You go ' + direction.to_word[dir] + '.');
+      player.look();
+    } else if (dir) {
+      player.send('You see no exit in that direction.');
     }
   }
 };
@@ -192,15 +207,7 @@ Commands.goto = {
     } else {
       var room_id = args[0];
       if (room_id in global.rooms) {
-        // TODO: refactor appear messages
-        var old_room = player.room;
-        global.rooms[room_id].broadcast(
-          player.name
-          + ' appears!');
-        player.move_to_room(global.rooms[room_id]);
-        old_room.broadcast(
-          player.name
-          + ' disappears!');
+        player.tp_to_room(global.rooms[room_id]);
         player.look();
       } else {
         player.send('No such room.');
@@ -221,15 +228,8 @@ Commands.tp = {
     }
     var username = args[0];
     if (username in global.users) {
-      var old_room = player.room;
-      global.users[username].room.broadcast(
-        player.name
-        + ' appears!');
-      // TODO: refactor appear messages
-      player.move_to_room(global.users[username].room);
-      old_room.broadcast(
-        player.name
-        + ' disappears!');
+      player.send('You teleport to ' + username + '.');
+      player.tp_to_room(global.users[username].room);
       player.look();
     } else {
       player.send('No such user.');
@@ -296,6 +296,52 @@ Commands.link = {
   }
 };
 
+Commands.makeexit = {
+  help_text: [
+    'Usage: makeexit [direction] [room id]',
+    'Creates a one-way exit to the given room in the given direction.'
+  ],
+  run: function(player, args) {
+    if (args.length < 2) {
+      player.send('Create one-way exit in which direction to which room?');
+      return;
+    }
+    var dir = direction.parse(args[0]);
+    var id = args[1];
+
+    // Check a billion failure conditions
+    if (!dir) {
+      player.send('Invalid direction.');
+      return;
+    }
+
+    if (!(id in global.rooms)) {
+      player.send('Room with id ' + id + ' not found.');
+      return;
+    }
+
+    if (id == player.room.id) {
+      player.send('You cannot link a room to itself!');
+      return;
+    }
+
+    if (dir in player.room.exits) {
+      player.send(
+        'There is already an exit '
+        + direction.to_the[dir]
+        + '.');
+      return;
+    }
+
+    var other_room = global.rooms[id];
+
+    // Success!
+    player.room.exits[dir] = other_room;
+    player.room.broadcast(
+      player.name + ' creates an exit ' + direction.to_the[dir] + '.');
+  }
+};
+
 Commands.unlink = {
   help_text: [
     'Usage: unlink [direction]',
@@ -318,6 +364,7 @@ Commands.unlink = {
 
     var other_room = player.room.exits[dir];
     if (other_room.exits[direction.opposite[dir]] == player.room) {
+      // Remove returning exit, if exists.
       delete other_room.exits[direction.opposite[dir]];
     }
     delete player.room.exits[dir];
@@ -330,33 +377,43 @@ Commands.unlink = {
   }
 };
 
-Commands.create = {
+Commands.makeroom = {
   help_text: [
-    'Usage: create [direction]',
-    'Creates a new room in the specified direction. Use "new" for a disconnected room.'
+    'Usage: makeroom [direction]',
+    'Makes a new room in the specified direction. Use "new" for a disconnected room.'
   ],
   run: function(player, args) {
     if (args.length === 0) {
-      player.send('Create room in which direction? Use "create new" for a disconnected room.');
+      player.send('Make room in which direction? Use "new" for a disconnected room.');
       return;
     }
 
-    if (args[0] === 'new') {
-      player.create_new_room();
-      player.look();
-      return;
-    }
-
+    var old_room = player.room;
+    var new_room = new Room();
     var dir = direction.parse(args[0]);
 
-    if (!dir) {
+    if (args[0] === 'new') {
+      player.send('You create a new room.');
+      player.tp_to_room(new_room);
+      player.look();
+    } else if (dir) {
+      if (dir in player.room.exits) {
+        player.send('There is already a room in that direction.');
+      } else {
+        new_room.exits[direction.opposite[dir]] = old_room;
+        old_room.exits[dir] = new_room;
+
+        player.send('You create a room ' + direction.to_the[dir] + '.');
+        old_room.broadcast(
+          player.name
+          + ' creates a new room '
+          + direction.to_the[dir], player);
+
+        player.run_command('go ' + dir);
+      }
+    } else {
       player.send('Invalid direction.');
       return;
-    }
-
-    if (args[0] === 'new') {
-    } else {
-      player.create_room_in_dir(dir);
     }
   }
 };
@@ -374,12 +431,13 @@ Commands.help = {
         'Socializing: say, shout, me, descself',
         'Game info: who, help',
         'Advanced movement: goto, tp',
-        'Building: create, id, nameroom, descroom, roomimage, link, unlink',
+        'Building: makeroom, nameroom, descroom, roomimage, makeexit, link, unlink',
         'Type "help [command]" for more detailed help about a command.'
       ]);
-    }
-    else if (args[0] in Commands) {
+    } else if (args[0] in Commands) {
       player.sendMsg(Commands[args[0]].help_text);
+    } else {
+      player.send(args[0] + ' is not a command yet.');
     }
   }
 };

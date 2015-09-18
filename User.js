@@ -1,13 +1,13 @@
 var crypto = require('crypto');
-var io = null;
 
 var direction = require('./direction.js');
 var Room = require('./Room.js')();
 var Commands = require('./Commands.js')();
+var World = require('./World.js')();
 
 function User(name) {
   this.name = name; // user's name
-  this.desc = 'It is a human.'; // user's description
+  this.desc = ''; // user's description
 
   this.passhash = null; // hash(salt + password)
   this.salt = null; // salt for password
@@ -31,6 +31,10 @@ User.prototype.verifyPassword = function(password) {
   hasher.update(this.salt + password);
   return hasher.digest('hex') === this.passhash;
 };
+
+User.prototype.setDesc = function(desc) {
+  this.desc = desc;
+}
 
 User.prototype.send = function(msg) {
   this.socket.emit('CHATMSG', msg);
@@ -81,7 +85,7 @@ User.prototype.look = function() {
       if (exits) {
         exits += ', ';
       }
-      exits += dir;
+      exits += direction.to_word[dir];
     }
   });
   if (exits) {
@@ -110,9 +114,32 @@ User.prototype.leave_room = function() {
   }
 };
 
-User.prototype.move_to_room = function(room) {
+User.prototype.move_to_room = function(new_room) {
+  var old_room = this.room;
   this.leave_room();
-  this.enter_room(room);
+  this.enter_room(new_room);
+};
+
+User.prototype.tp_to_room = function(new_room) {
+  // Move immediately from one room to another.
+  var old_room = this.room;
+
+  new_room.playerEnter(this);
+  this.move_to_room(new_room);
+  old_room.playerLeave(this);
+}
+
+User.prototype.move_in_dir = function(dir) {
+  if (dir in this.room.exits) {
+    var old_room = this.room;
+    var new_room = old_room.exits[dir];
+
+    new_room.playerEnter(this, dir);
+    this.move_to_room(new_room);
+    old_room.playerLeave(this, dir);
+  } else {
+    throw "Could not find exit in direction."
+  }
 };
 
 User.prototype.run_command = function(msg) {
@@ -122,60 +149,17 @@ User.prototype.run_command = function(msg) {
   var args = chunks.slice(1);
   var cmd = chunks[0].toLowerCase();
 
+  var msg_as_dir = direction.parse(msg)
+
   if (cmd in Commands) {
     Commands[cmd].run(this, args);
-  } else if (cmd in direction.direction_dict) {
-    var dir = direction.parse(chunks[0]);
-    this.move_in_dir(dir);
+  } else if (msg_as_dir) {
+    Commands.go.run(this, chunks);
   } else {
     return false;  // command was not found
   }
   return true;  // command was successful
 }
-
-User.prototype.move_in_dir = function(dir) {
-  if (dir in this.room.exits) {
-    var old_room = this.room;
-    var new_room = old_room.exits[dir];
-    new_room.broadcast(
-      this.name
-      + ' comes from '
-      + direction.the[direction.opposite[dir]]
-      + '.');
-    this.move_to_room(new_room);
-    old_room.broadcast(
-      this.name
-      + ' goes '
-      + direction.to_word[dir]
-      + '.');
-    this.send('You go ' + direction.to_word[dir] + '.');
-    this.look();
-  } else {
-    this.send('You see no exit in that direction.');
-  }
-};
-
-User.prototype.create_new_room = function() {
-  var old_room = this.room;
-  var new_room = new Room();
-  this.send('You create a brand new room.');
-  this.move_to_room(new_room);
-  old_room.broadcast(this.name + ' disappears.');
-};
-
-User.prototype.create_room_in_dir = function(dir) {
-  if (!(dir in this.room.exits)) {
-    var old_room = this.room;
-    var new_room = new Room();
-    new_room.exits[direction.opposite[dir]] = old_room;
-    old_room.exits[dir] = new_room;
-    this.send('You create a room ' + direction.to_the[dir] + '.');
-    this.move_in_dir(dir);
-    old_room.broadcast(this.name + ' creates a new room ' + direction.to_the[dir]);
-  } else {
-    this.send('There is already a room in that direction.');
-  }
-};
 
 User.prototype.handle_msg_normal = function(msg) {
   console.log(this.name + ': ' + msg);
@@ -208,11 +192,14 @@ User.prototype.handle_msg = function(msg) {
 };
 
 User.prototype.come_online = function() {
+  if (this.socket) {
+    this.send('You have logged in from somewhere else.');
+    this.socket.disconnect();
+  }
   this.socket = this.login_socket;
   this.online = true;
 
-  // TODO: remove ios
-  io.emit('CHATMSG', this.name + ' has come online.');
+  World.broadcast(this.name + ' has come online.');
   this.run_command('who');
   this.room.broadcast(this.name + ' appears.');
   this.msg_handler = this.handle_msg_normal;
@@ -231,7 +218,6 @@ User.prototype.login = function(socket) {
   }
 };
 
-module.exports = function(incoming_io) {
-  io = incoming_io;
+module.exports = function() {
   return User;
 }

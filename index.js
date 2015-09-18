@@ -5,7 +5,7 @@ var http = require('http').Server(app);
 var io = require('socket.io')(http);
 
 var direction = require('./direction.js');
-var User = require('./User.js')(io);
+var User = require('./User.js')();
 var Room = require('./Room.js')();
 
 global.rooms = {};
@@ -92,6 +92,7 @@ app.get('/', function(req, res) {
 io.on('connection', function(socket) {
   var user = null;
   console.log('a user connected');
+  socket.emit('CHATMSG', 'Connected.');
   socket.emit('IMGMSG', 'http://i.imgur.com/FPZQECH.png');
   //socket.emit('IMGMSG', 'https://i.imgur.com/5b4LCCT.png');
   socket.emit('CHATMSG', 'Welcome to Salty Mush.');
@@ -99,7 +100,6 @@ io.on('connection', function(socket) {
   socket.on('disconnect', function() {
     console.log('user disconnected');
     if (user) {
-      io.emit('CHATMSG', user.name + ' has disconnected.');
       user.leave_room();
       user.room.broadcast(user.name + ' disappears.');
       user.online = false;
