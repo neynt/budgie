@@ -25,10 +25,10 @@ form button { width: 50px; background: #fff; border: none; float: right; }
   animation-name: new_msg;
 }
 #messages div.msg_block img {
-  padding: 4px 10px;
   display: block;
+  padding: 4px 10px;
   max-width: 200px;
-  max-height: 200px;
+  max-height: 300px;
 }
 #messages div.msg_block img.fullframe {
   margin: -5px 0;
@@ -36,6 +36,10 @@ form button { width: 50px; background: #fff; border: none; float: right; }
 }
 #messages div.msg_block p {
   padding: 4px 10px;
+}
+#messages div.msg_block h3 {
+  padding: 4px 10px;
+  font-weight: normal;
 }
 #messages div.client_side_msg {
   background: #ddd;
@@ -68,12 +72,12 @@ form button { width: 50px; background: #fff; border: none; float: right; }
   <script>
   // see this, this is a mfkn' closure
   (function() {
+    var socket = io();
+    var messages = $('#messages');
 
     function scrollToBottom() {
       window.scrollTo(0, document.body.scrollHeight);
     }
-
-    var socket = io();
     $('form').submit(function() {
       var val = $('#m').val();
       if (val) {
@@ -83,14 +87,14 @@ form button { width: 50px; background: #fff; border: none; float: right; }
       return false;
     });
     socket.on('CHATMSG', function(msg) {
-      $('#messages').append(
+      messages.append(
         $('<div>').addClass('msg_block').append(
           $('<p>').text(msg)));
       scrollToBottom();
     });
     socket.on('IMGMSG', function(imgurl) {
       var image = $('<img>').attr('src', imgurl);
-      $('#messages').append(
+      messages.append(
         $('<div>').addClass('msg_block').append(
           image));
       image.load(scrollToBottom);
@@ -103,11 +107,32 @@ form button { width: 50px; background: #fff; border: none; float: right; }
       msg.lines.forEach(function(line) {
         msg_div.append($('<p>').text(line));
       });
-      $('#messages').append(msg_div);
+      messages.append(msg_div);
+      scrollToBottom();
+    });
+    socket.on('CMPLXMSG', function(msg) {
+      var msg_div = $('<div>').addClass('msg_block');
+      msg.lines.forEach(function(line) {
+        switch(line.type) {
+          case 'title':
+            msg_div.append($('<h3>').text(line.text));
+            break;
+          case 'normal':
+            msg_div.append($('<p>').text(line.text));
+            break;
+          case 'img':
+            var image = $('<img>').attr('src', line.text);
+            msg_div.append(image);
+            image.load(scrollToBottom);
+            image.error(scrollToBottom);
+            break;
+        }
+      });
+      messages.append(msg_div);
       scrollToBottom();
     });
     socket.on('disconnect', function() {
-      $('#messages').append(
+      messages.append(
         $('<div>').addClass('msg_block client_side_msg').append(
           $('<p>').text('Disconnected.')));
       scrollToBottom();

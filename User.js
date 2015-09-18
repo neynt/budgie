@@ -34,7 +34,12 @@ User.prototype.verifyPassword = function(password) {
 
 User.prototype.setDesc = function(desc) {
   this.desc = desc;
-}
+};
+
+User.prototype.sendComplexMsg = function(msg) {
+  // A complex message is an array of objects with type and text properties.
+  this.socket.emit('CMPLXMSG', msg);
+};
 
 User.prototype.send = function(msg) {
   this.socket.emit('CHATMSG', msg);
@@ -57,10 +62,19 @@ User.prototype.getDesc = function() {
 User.prototype.look = function() {
   var room = this.room;
 
-  var msg_lines = [];
-  msg_lines.push(
-    '[' + room.name + '] ' + room.desc
-  );
+  var msg = {
+    lines: [],
+  };
+
+  // Name
+  if (room.name)
+    msg.lines.push({ type: 'title', text: room.name });
+  // Images
+  if (room.img)
+    msg.lines.push({ type: 'img', text: room.img });
+  // Description
+  if (room.desc)
+    msg.lines.push({ type: 'normal', text: room.desc });
 
   // Users
   var users = '';
@@ -73,9 +87,7 @@ User.prototype.look = function() {
     }
   }, this);
   if (users) {
-    msg_lines.push(
-      'Users here: ' + users + '.'
-    )
+    msg.lines.push({ type: 'normal', text: 'Users here: ' + users + '.' });
   }
 
   // Exits
@@ -89,17 +101,10 @@ User.prototype.look = function() {
     }
   });
   if (exits) {
-    msg_lines.push(
-      'Exits: ' + exits + '.'
-    );
+    msg.lines.push({ type: 'normal', text: 'Exits: ' + exits + '.' });
   }
 
-  this.sendMsg(msg_lines);
-
-  // Images
-  if (room.img) {
-    this.sendImg(room.img);
-  }
+  this.sendComplexMsg(msg);
 };
 
 User.prototype.enter_room = function(room) {
