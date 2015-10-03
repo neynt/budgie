@@ -204,9 +204,10 @@ User.prototype.come_online = function() {
   this.socket = this.login_socket;
   this.online = true;
 
+  this.login_socket.emit('passwd', {enable: 0});
   World.broadcast(this.name + ' has come online.');
   this.run_command('who');
-  this.room.broadcast(this.name + ' appears.');
+  this.room.broadcast(this.name + ' flickers and appears.');
   this.msg_handler = this.handle_msg_normal;
   this.enter_room(this.room);
   this.look();
@@ -214,14 +215,22 @@ User.prototype.come_online = function() {
 
 User.prototype.login = function(socket) {
   this.login_socket = socket;
+  this.login_socket.emit('passwd', {enable: 1});
   if (this.passhash) {
     this.login_socket.emit('CHATMSG', 'Please enter your password.');
     this.msg_handler = this.handle_msg_ask_password;
   } else {
-    this.login_socket.emit('CHATMSG', 'Please enter a new password.');
+    this.login_socket.emit('CHATMSG', 'Please enter your desired password.');
     this.msg_handler = this.handle_msg_new_password;
   }
 };
+
+User.prototype.on_disconnect = function() {
+  console.log('user disconnected: ' + this.name);
+  this.leave_room();
+  this.room.broadcast(this.name + ' flickers and disappears.');
+  this.online = false;
+}
 
 module.exports = function() {
   return User;
