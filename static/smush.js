@@ -7,6 +7,10 @@
   function scrollToBottom() {
     window.scrollTo(0, document.body.scrollHeight);
   }
+
+  window.addEventListener("resize", function() {
+    scrollToBottom();
+  });
   $('form').submit(function() {
     var val = inputbox.val();
     if (val) {
