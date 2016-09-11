@@ -1,0 +1,53 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font: 16px Helvetica, sans-serif;
+  overflow-x: hidden;
+  overflow-y: scroll;
+  color: #444;
+}
+form { padding: 3px; position: fixed; bottom: 0; max-width: 800px; width: 100%; background: #888; }
+form input, form button { padding: 10px; outline: none; font-size: 16px; }
+form input { border: 0; width: 100%; margin-right: .5%; }
+form button { width: 50px; background: #fff; border: none; float: right; }
+#messages { margin: 0 0 45px; padding: 0; }
+
+#messages div.msg_block {
+  padding: 5px 0;
+  border-bottom: 1px solid #ddd;
+
+  animation-duration: 50.0s;
+  animation-timing-function: cubic-bezier(0.1, 0, 0.25, 1);
+  animation-name: new_msg;
+}
+#messages div.msg_block img {
+  display: block;
+  padding: 4px 10px;
+  max-width: 200px;
+  max-height: 200px;
+}
+#messages div.msg_block img.fullframe {
+  margin: -5px 0;
+  padding: 0;
+}
+#messages div.msg_block p {
+  padding: 4px 10px;
+}
+#messages div.msg_block h3 {
+  padding: 4px 10px;
+  font-weight: normal;
+  font-size: 19px;
+}
+#messages div.client_side_msg {
+  background: #ddd;
+}
+#wrap {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+@keyframes new_msg {
+  0%   { color: #fff; }
+  1%   { color: #000; }
+  10%  { color: #444; }
+  100% { color: #666; }
+}

@@ -3,8 +3,21 @@ var User = require('./User.js')();
 var handle_connection = function(socket) {
   var user = null;
   console.log('a user connected');
-  socket.emit('CHATMSG', 'What is your username? Type "new" if you\'ve never been here before.');
+
+  var emit_lines = function(lines) {
+    lines_array = [];
+    lines.forEach(function(line) {
+      lines_array.push({ type: 'normal', text: line });
+    });
+    socket.emit('CMPLXMSG', { lines: lines_array });
+  }
+
+  emit_lines([
+    'Welcome to Smush.',
+    'What is your name? Or type "new" if this is your first time here.'
+  ]);
   socket.emit('passwd', {enable: 0});
+
 
   var on_disconnect = function() {
     console.log('user disconnected');
@@ -28,6 +41,7 @@ var handle_connection = function(socket) {
     if (check_good_name(name)) {
       var user = new User(name);
       global.users[name] = user;
+      socket.emit('CHATMSG', '"' + name + '" it is.');
       bind_user(user);
     }
   }
@@ -35,10 +49,14 @@ var handle_connection = function(socket) {
   var handle_initial_message = function(msg) {
     if (msg === 'new') {
       // Start new user process.
-      socket.emit('CHATMSG', 'Please enter a username. It must be between 3 and 16 letters long.');
+      emit_lines([
+        'You are about to enter a vibrant, mutable world.',
+        'What name do you wish to be known by?'
+      ]);
       state = handle_msg_new_user;
     } else {
-      var name = msg.toLowerCase();
+      var name = msg;
+      var id = name.toLowerCase();
       if (name in global.users) {
         bind_user(global.users[name]);
       } else {
@@ -53,15 +71,15 @@ var handle_connection = function(socket) {
       return false;
     }
     if (name.length < 3 || name.length > 16) {
-      socket.emit('CHATMSG', 'Your name must be 3-16 letters long.');
+      socket.emit('CHATMSG', 'Your name must be 3 to 16 letters long.');
       return false;
     }
     if (name === 'new') {
-      socket.emit('CHATMSG', 'You can\'t use that name! Nice try, though.');
+      socket.emit('CHATMSG', 'But then you wouldn\'t be able to log in!');
       return false;
     }
     if (name in global.users) {
-      socket.emit('CHATMSG', 'That name has already been taken.');
+      socket.emit('CHATMSG', 'Sorry, that name has already been taken.');
       return false;
     }
     return true;

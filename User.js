@@ -67,14 +67,11 @@ User.prototype.look = function() {
   };
 
   // Name
-  if (room.name)
-    msg.lines.push({ type: 'title', text: room.name });
-  // Images
-  if (room.img)
-    msg.lines.push({ type: 'img', text: room.img });
+  if (room.name) msg.lines.push({ type: 'title', text: room.name });
+  // Images (disable for now)
+  //if (room.img) msg.lines.push({ type: 'img', text: room.img });
   // Description
-  if (room.desc)
-    msg.lines.push({ type: 'normal', text: room.desc });
+  if (room.desc) msg.lines.push({ type: 'normal', text: room.desc });
 
   // Users
   var users = '';
@@ -97,7 +94,7 @@ User.prototype.look = function() {
       if (exits) {
         exits += ', ';
       }
-      exits += direction.to_word[dir];
+      exits += direction.to_word[dir] + ' (' + room.exits[dir].name + ')';
     }
   });
   if (exits) {

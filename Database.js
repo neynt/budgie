@@ -6,7 +6,6 @@ var Room = require('./Room.js')();
 function Database() {
 }
 Database.prototype.save_all = function() {
-  process.stdout.write('saving to disk... ')
   var user_data = {};
   for (username in global.users) {
     var user = global.users[username];
@@ -36,7 +35,6 @@ Database.prototype.save_all = function() {
     users: user_data,
     rooms: room_data
   }));
-  console.log('saved');
 }
 
 Database.prototype.load_all = function() {
