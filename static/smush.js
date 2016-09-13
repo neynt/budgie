@@ -68,6 +68,7 @@
   socket.on('passwd', function(msg) {
     if (msg.enable) inputbox.prop({type: 'password'});
     else inputbox.prop({type: 'text'});
+    inputbox.focus();
   });
   socket.on('disconnect', function() {
     messages.append(
