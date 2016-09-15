@@ -2,7 +2,7 @@ var crypto = require('crypto');
 
 var direction = require('./direction.js');
 var Room = require('./Room.js')();
-var Commands = require('./Commands.js')();
+var Commands = require('./commands')();
 var World = require('./World.js')();
 
 function User(name) {

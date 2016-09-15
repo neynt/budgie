@@ -14,9 +14,10 @@ form button { width: 50px; background: #fff; border: none; float: right; }
 #messages div.msg_block {
   padding: 5px 0;
   border-bottom: 1px solid #ddd;
+  opacity: 0.5;
 
   animation-duration: 50.0s;
-  animation-timing-function: cubic-bezier(0.1, 0, 0.25, 1);
+  animation-timing-function: linear;
   animation-name: new_msg;
 }
 #messages div.msg_block img {
@@ -29,25 +30,14 @@ form button { width: 50px; background: #fff; border: none; float: right; }
   margin: -5px 0;
   padding: 0;
 }
-#messages div.msg_block p {
-  padding: 4px 10px;
-}
-#messages div.msg_block h3 {
-  padding: 4px 10px;
-  font-weight: normal;
-  font-size: 19px;
-}
-#messages div.client_side_msg {
-  background: #ddd;
-}
-#wrap {
-  max-width: 800px;
-  margin: 0 auto;
-}
+#messages div.msg_block p { padding: 4px 10px; }
+#messages div.msg_block h3 { padding: 4px 10px; font-weight: normal; font-size: 19px; }
+#messages div.client_side_msg { background: #ddd; }
+#wrap { max-width: 800px; margin: 0 auto; }
 
 @keyframes new_msg {
-  0%   { color: #fff; }
-  1%   { color: #000; }
-  10%  { color: #444; }
-  100% { color: #666; }
+  0%   { opacity: 0.0; }
+  0.4% { opacity: 1.0; }
+  10%  { opacity: 1.0; }
+  100% { opacity: 0.5; }
 }
