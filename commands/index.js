@@ -1,22 +1,23 @@
 var Commands = {}
 
-Commands.say = require('./say.js');
-Commands.shout = require('./shout.js');
-Commands.me = require('./me.js');
-Commands.descself = require('./descself.js');
-Commands.who = require('./who.js');
-Commands.nameroom = require('./nameroom.js');
+Commands.changepass = require('./changepass.js');
 Commands.descroom = require('./descroom.js');
-Commands.roomimage = require('./roomimage.js');
-Commands.look = require('./look.js');
-Commands.id = require('./id.js');
+Commands.descself = require('./descself.js');
 Commands.go = require('./go.js');
 Commands.goto = require('./goto.js');
-Commands.tp = require('./tp.js');
+Commands.id = require('./id.js');
 Commands.link = require('./link.js');
+Commands.look = require('./look.js');
 Commands.makeexit = require('./makeexit.js');
-Commands.unlink = require('./unlink.js');
 Commands.makeroom = require('./makeroom.js');
+Commands.me = require('./me.js');
+Commands.nameroom = require('./nameroom.js');
+Commands.roomimage = require('./roomimage.js');
+Commands.say = require('./say.js');
+Commands.shout = require('./shout.js');
+Commands.tp = require('./tp.js');
+Commands.unlink = require('./unlink.js');
+Commands.who = require('./who.js');
 
 Commands.help = {
   help_text: [

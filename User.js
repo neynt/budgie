@@ -16,7 +16,7 @@ function User(name) {
   this.login_socket = null;  // temporary socket for logging in
   this.online = false;
   this.room = global.rooms['center'];
-  this.msg_handler = this.handle_msg_normal;
+  this.handle_msg = this.handle_msg_normal;
 };
 
 User.prototype.setPassword = function(password) {
@@ -173,6 +173,7 @@ User.prototype.handle_msg_normal = function(msg) {
 
 User.prototype.handle_msg_ask_password = function(msg) {
   if (this.verifyPassword(msg)) {
+    this.login_socket.emit('passwd', {enable: 0});
     this.come_online();
   } else {
     this.login_socket.emit('CHATMSG', 'Incorrect. Please try again.');
@@ -181,16 +182,19 @@ User.prototype.handle_msg_ask_password = function(msg) {
 
 User.prototype.handle_msg_new_password = function(msg) {
   if (msg.length < 3) {
-    this.login_socket.emit('CHATMSG', 'Your password needs to be at least 3 characters long.');
+    this.send('Your password needs to be at least 3 characters long.');
   } else {
     this.setPassword(msg);
-    this.login_socket.emit('CHATMSG', 'Your password has been set.');
-    this.come_online();
+    this.send('Your password has been set.');
+    this.socket.emit('passwd', {enable: 0});
+    this.handle_msg = this.handle_msg_normal;
   }
 };
 
-User.prototype.handle_msg = function(msg) {
-  this.msg_handler(msg);
+User.prototype.change_password = function() {
+  this.socket.emit('passwd', {enable: 1});
+  this.send('Please enter your desired password.');
+  this.handle_msg = this.handle_msg_new_password;
 };
 
 User.prototype.come_online = function() {
@@ -201,24 +205,23 @@ User.prototype.come_online = function() {
   this.socket = this.login_socket;
   this.online = true;
 
-  this.login_socket.emit('passwd', {enable: 0});
   World.broadcast(this.name + ' has come online.');
   this.run_command('who');
   this.room.broadcast(this.name + ' flickers and appears.');
-  this.msg_handler = this.handle_msg_normal;
+  this.handle_msg = this.handle_msg_normal;
   this.enter_room(this.room);
   this.look();
 };
 
 User.prototype.login = function(socket) {
   this.login_socket = socket;
-  this.login_socket.emit('passwd', {enable: 1});
   if (this.passhash) {
+    this.login_socket.emit('passwd', {enable: 1});
     this.login_socket.emit('CHATMSG', 'Please enter your password.');
-    this.msg_handler = this.handle_msg_ask_password;
+    this.handle_msg = this.handle_msg_ask_password;
   } else {
-    this.login_socket.emit('CHATMSG', 'Please enter your desired password.');
-    this.msg_handler = this.handle_msg_new_password;
+    this.come_online();
+    this.change_password();
   }
 };
 
