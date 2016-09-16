@@ -28,7 +28,8 @@ Commands.help = {
   run: function(player, args) {
     if (args.length === 0) {
       player.sendMsg([
-        'Basic commands: look, go',
+        'Essential commands: look, go',
+        'Account settings: changepass',
         'Socializing: say, shout, me, descself',
         'Game info: who, help',
         'Advanced movement: goto, tp',
