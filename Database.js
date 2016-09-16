@@ -63,7 +63,7 @@ Database.prototype.load_all = function() {
         user.passhash = user_data[username].passhash;
         user.salt = user_data[username].salt;
         user.room = global.rooms[user_data[username].room_id];
-        user.desc = user_data.desc;
+        user.desc = user_data[username].desc;
         global.users[username] = user;
       }
       console.log('loaded data from disk');
