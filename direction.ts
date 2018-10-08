@@ -1,8 +1,12 @@
-// Display order in the UI. Also, a nice list of all standard directions.
-var in_order = ['n', 's', 'e', 'w', 'ne', 'sw', 'nw', 'se', 'u', 'd', 'i', 'o'];
+export type t = string;
+
+// Directions in order they will be displayed to the user.
+export const in_order: Array<t> = [
+  'n', 's', 'e', 'w', 'ne', 'sw', 'nw', 'se', 'u', 'd', 'i', 'o'
+];
 
 // Pairs of opposite directions.
-var pairs = [
+const pairs = [
   ['n', 's'],
   ['e', 'w'],
   ['ne', 'sw'],
@@ -11,8 +15,18 @@ var pairs = [
   ['i', 'o']
 ];
 
+// Maps direction to its opposite.
+const _opposite: {[d: string]: t} = {};
+pairs.forEach((dirs) => {
+  _opposite[dirs[0]] = dirs[1];
+  _opposite[dirs[1]] = dirs[0];
+});
+export function opposite(d: t): t {
+  return _opposite[d];
+}
+
 // "Alice goes ___"
-var to_word = {
+const _to_word: {[d: string]: string} = {
   'n': 'north',
   's': 'south',
   'e': 'east',
@@ -26,16 +40,12 @@ var to_word = {
   'i': 'in',
   'o': 'out'
 };
-
-// Maps direction to its opposite.
-var opposite = {};
-pairs.forEach(function(dirs) {
-  opposite[dirs[0]] = dirs[1];
-  opposite[dirs[1]] = dirs[0];
-});
+export function to_word(d: t): string {
+  return _to_word[d];
+}
 
 // "x creates an exit ___"
-var to_the = {
+const _to_the: {[d: string]: string} = {
   'n': 'to the north',
   's': 'to the south',
   'e': 'to the east',
@@ -49,9 +59,12 @@ var to_the = {
   'i': 'inward',
   'o': 'outward'
 };
+export function to_the(d: t): string {
+  return _to_the[d];
+}
 
 // "x comes from ___"
-var the = {
+export const _the: {[d: string]: string} = {
   'n': 'the north',
   's': 'the south',
   'e': 'the east',
@@ -65,27 +78,20 @@ var the = {
   'i': 'inward',
   'o': 'outward'
 };
-
-var direction_dict = {};
-for (dir_code in to_word) {
-  direction_dict[dir_code] = dir_code;
-  direction_dict[to_word[dir_code]] = dir_code;
+export function the(d: t): string {
+  return _the[d];
 }
 
-function parse(msg) {
+const direction_dict: {[d: string]: t} = {};
+for (const dir_code in to_word) {
+  direction_dict[dir_code] = dir_code;
+  direction_dict[to_word(dir_code)] = dir_code;
+}
+
+export function parse(msg: string): t | null {
   if (msg in direction_dict) {
     return direction_dict[msg];
   } else {
     return null;
   }
 };
-
-module.exports = {
-  in_order: in_order,
-  opposite: opposite,
-  to_word: to_word,
-  to_the: to_the,
-  the: the,
-  direction_dict: direction_dict,
-  parse: parse
-}

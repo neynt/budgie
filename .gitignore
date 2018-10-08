@@ -1,0 +1,4 @@
+*.js
+Session.vim
+node_modules
+saved_data.json

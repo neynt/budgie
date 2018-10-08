@@ -1,9 +1,17 @@
 // Web serving
-var app = require('express')();
-var http = require('http').Server(app);
-var io = require('socket.io')(http);
+import express = require('express');
+import http = require('http');
+import socket_io = require('socket.io');
+import Room from './room';
+import * as g from './global';
+import * as Database from './database';
+import handle_connection from './handle_connection';
 
-static_files = [
+const app = express();
+const server = new http.Server(app);
+const io = socket_io(server);
+
+const static_files = [
   'index.html',
   'smush.css',
   'smush.js',
@@ -21,22 +29,14 @@ app.get('/', function(req, res) {
 });
 
 // Game logic
-var Database = require('./Database')();
-var Room = require('./Room.js')();
-var handle_connection = require('./handle_connection');
-
-global.rooms = {};
-global.rooms['center'] = new Room('center');
-global.users = {};
+g.rooms['center'] = new Room('center');
 
 Database.load_all();
-setInterval(function() {
-  Database.save_all();
-}, 300000);  // persist to disk every 5 min
+setInterval(Database.save_all, 300000); // persist to disk every 5 min
 
 io.on('connection', handle_connection);
 
-http.listen(3069, function() {
+server.listen(3069, function() {
   console.log('Listening on :3069');
 });
 

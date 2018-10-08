@@ -1,12 +1,18 @@
-var User = require('./User.js')();
+import * as g from './global';
+import User from './user';
+import { MessageLine, ComplexMessage } from './message';
 
-var handle_connection = function(socket) {
+function on_disconnect() {
+  console.log('user disconnected');
+}
+
+export default function handle_connection(socket: SocketIO.Socket) {
   var user = null;
   console.log('a user connected');
 
-  var emit_lines = function(lines) {
-    lines_array = [];
-    lines.forEach(function(line) {
+  function emit_lines(lines: Array<string>) {
+    const lines_array: Array<MessageLine> = [];
+    lines.forEach((line) => {
       lines_array.push({ type: 'normal', text: line });
     });
     socket.emit('CMPLXMSG', { lines: lines_array });
@@ -14,39 +20,34 @@ var handle_connection = function(socket) {
 
   emit_lines([
     'Welcome to Smush.',
-    'What is your name? Or type "new" if this is your first time here.'
+    'What is your name? Or type "new" if this is your first time here.',
   ]);
   socket.emit('passwd', {enable: 0});
-
-
-  var on_disconnect = function() {
-    console.log('user disconnected');
-  }
   socket.on('disconnect', on_disconnect);
 
-  var bind_user = function(user) {
+  function bind_user(user: User) {
     user.login(socket);
     socket.on('CHATMSG', function(msg) {
       user.handle_msg(msg);
     });
     socket.on('disconnect', function(msg) {
-      user.on_disconnect(msg);
+      user.on_disconnect();
     });
     socket.removeListener('CHATMSG', handle_msg);
     socket.removeListener('disconnect', on_disconnect);
   }
 
-  var handle_msg_new_user = function(msg) {
+  function handle_msg_new_user(msg: string) {
     var name = msg.toLowerCase();
     if (check_good_name(name)) {
       var user = new User(name);
-      global.users[name] = user;
+      g.users[name] = user;
       socket.emit('CHATMSG', '"' + name + '" it is.');
       bind_user(user);
     }
   }
 
-  var handle_initial_message = function(msg) {
+  function handle_initial_message(msg: string) {
     if (msg === 'new') {
       // Start new user process.
       emit_lines([
@@ -57,15 +58,15 @@ var handle_connection = function(socket) {
     } else {
       var name = msg;
       var id = name.toLowerCase();
-      if (name in global.users) {
-        bind_user(global.users[name]);
+      if (name in g.users) {
+        bind_user(g.users[name]);
       } else {
         socket.emit('CHATMSG', 'There\'s no one with that name yet.')
       }
     }
   }
 
-  var check_good_name = function(name) {
+  function check_good_name(name: string) {
     if (!name.match(/^[A-Za-z]+$/)) {
       socket.emit('CHATMSG', 'Your name can only contain letters.');
       return false;
@@ -78,16 +79,16 @@ var handle_connection = function(socket) {
       socket.emit('CHATMSG', 'But then you wouldn\'t be able to log in!');
       return false;
     }
-    if (name in global.users) {
+    if (name in g.users) {
       socket.emit('CHATMSG', 'Sorry, that name has already been taken.');
       return false;
     }
     return true;
   }
 
-  var state = handle_initial_message;
+  let state = handle_initial_message;
 
-  var handle_msg = function(msg) {
+  function handle_msg(msg: string) {
     state(msg);
   }
 
