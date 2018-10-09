@@ -83,15 +83,11 @@ export function the(d: t): string {
 }
 
 const direction_dict: {[d: string]: t} = {};
-for (const dir_code in to_word) {
+for (const dir_code of in_order) {
   direction_dict[dir_code] = dir_code;
   direction_dict[to_word(dir_code)] = dir_code;
 }
 
 export function parse(msg: string): t | null {
-  if (msg in direction_dict) {
-    return direction_dict[msg];
-  } else {
-    return null;
-  }
+  return direction_dict[msg] || null;
 };

@@ -4,7 +4,7 @@ import * as Direction from './direction';
 import Room from './room';
 import * as World from './world';
 import { MessageLine, ComplexMessage } from './message';
-import commands from './commands';
+import { commands } from './commands';
 
 export default class User {
   name: string;
@@ -44,12 +44,13 @@ export default class User {
 
     if (cmd in commands) {
       commands[cmd].run(this, args);
+      return true;
     } else if (msg_as_dir) {
       commands.go.run(this, chunks);
+      return true;
     } else {
       return false;  // command was not found
     }
-    return true;  // command was successful
   }
 
   handle_msg_normal(msg: string) {

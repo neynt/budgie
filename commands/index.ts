@@ -45,6 +45,7 @@ commands.help = {
         'Building: new, title, desc, image, link, unlink',
         'Type "help [command]" for more detailed help about a command.'
       ]);
+      return;
     }
     const cmd = args[0];
     if (cmd in commands) {
