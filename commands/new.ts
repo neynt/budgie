@@ -3,13 +3,13 @@ import Room from '../room';
 import User from '../user';
 
 export const help_text = [
-  'Usage: makeroom [direction]',
-  'Makes a new room in the specified direction. Use "new" for a disconnected room.',
+  'Usage: new [direction]',
+  'Makes a new room in the specified direction. Use "new new" for a disconnected room.',
 ];
 
 export function run(player: User, args: Array<string>) {
   if (args.length === 0) {
-    player.send('Make room in which direction? Use "new" for a disconnected room.');
+    player.send('New room in which direction? Use "new new" for a disconnected room.');
     return;
   }
 

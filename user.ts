@@ -194,7 +194,7 @@ export default class User {
       this.send('Your password needs to be at least 3 characters long.');
     } else {
       this.setPassword(msg);
-      this.send('Your password has been set.');
+      this.send('Your password has been changed.');
       this.socket!.emit('passwd', {enable: 0});
       this.handle_msg = this.handle_msg_normal;
     }

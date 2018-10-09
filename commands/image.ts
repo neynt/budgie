@@ -1,8 +1,8 @@
 import User from '@/user';
 
 export const help_text = [
-  'Usage: roomimage [image url]',
-  "Sets the room's image to the image at the given URL. Use \"roomimage none\" to remove the image."
+  'Usage: image [image url]',
+  "Sets the room's image to the image at the given URL. Use \"image none\" to remove the image."
 ];
 
 export function run(player: User, args: Array<string>) {

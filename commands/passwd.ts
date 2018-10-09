@@ -1,7 +1,7 @@
 import User from '../user';
 
 export const help_text = [
-  'Usage: changepass',
+  'Usage: passwd',
   'Changes your password.',
 ];
 

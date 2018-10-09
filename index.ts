@@ -45,3 +45,5 @@ process.on('exit', () => {
   console.log('Saving state and shutting down server.');
   process.exit();
 });
+process.on('SIGINT', () => process.exit(0));
+process.on('SIGTERM', () => process.exit(1));

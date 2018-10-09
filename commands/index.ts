@@ -8,24 +8,27 @@ interface Command {
 export const commands: {[name: string]: Command} = {}
 export default commands;
 
-commands.changepass = require('./changepass');
-commands.descroom = require('./descroom');
-commands.descself = require('./descself');
+commands.look = require('./look');
+commands.who = require('./who');
+
 commands.go = require('./go');
 commands.goto = require('./goto');
-commands.id = require('./id');
-commands.link = require('./link');
-commands.look = require('./look');
-commands.makeexit = require('./makeexit');
-commands.makeroom = require('./makeroom');
-commands.me = require('./me');
-commands.nameroom = require('./nameroom');
-commands.roomimage = require('./roomimage');
+commands.tp = require('./tp');
+
+commands.passwd = require('./passwd');
+
 commands.say = require('./say');
 commands.shout = require('./shout');
-commands.tp = require('./tp');
+commands.me = require('./me');
+commands.descself = require('./descself');
+
+commands.new = require('./new');
+commands.title = require('./title');
+commands.desc = require('./desc');
+commands.id = require('./id');
+commands.link = require('./link');
+commands.image = require('./image');
 commands.unlink = require('./unlink');
-commands.who = require('./who');
 commands.help = {
   help_text: [
     'Usage: help [command]',
@@ -35,12 +38,11 @@ commands.help = {
   run: function(player, args) {
     if (args.length === 0) {
       player.sendMsg([
-        'Essential commands: look, go',
-        'Account settings: changepass',
-        'Socializing: say, shout, me, descself',
-        'Game info: who, help',
-        'Advanced movement: goto, tp',
-        'Building: makeroom, nameroom, descroom, roomimage, makeexit, link, unlink',
+        'Info: look, who, help',
+        'Movement: go, goto, tp',
+        'Account: passwd',
+        'Social: say, shout, me, descself',
+        'Building: new, title, desc, image, link, unlink',
         'Type "help [command]" for more detailed help about a command.'
       ]);
     }
