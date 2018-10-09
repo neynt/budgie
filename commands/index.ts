@@ -43,10 +43,12 @@ commands.help = {
         'Building: makeroom, nameroom, descroom, roomimage, makeexit, link, unlink',
         'Type "help [command]" for more detailed help about a command.'
       ]);
-    } else if (args[0] in commands) {
-      player.sendMsg(commands[args[0]].help_text);
+    }
+    const cmd = args[0];
+    if (cmd in commands) {
+      player.sendMsg(commands[cmd].help_text);
     } else {
-      player.send(args[0] + ' is not a command yet.');
+      player.send(cmd + ' is not a command.');
     }
   }
 };

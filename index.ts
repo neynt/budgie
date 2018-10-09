@@ -40,8 +40,8 @@ server.listen(3069, function() {
   console.log('Listening on :3069');
 });
 
-process.on('SIGINT', function() {
+process.on('exit', () => {
   Database.save_all();
-  console.log('Shutting down server.');
+  console.log('Saving state and shutting down server.');
   process.exit();
 });

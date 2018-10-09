@@ -6,3 +6,11 @@ export interface MessageLine {
 export interface ComplexMessage {
   lines: Array<MessageLine>;
 }
+
+export interface SimpleMessage {
+  lines: Array<string>;
+}
+
+export interface PasswordMessage {
+  enable: boolean;
+}

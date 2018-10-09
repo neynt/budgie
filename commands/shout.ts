@@ -1,5 +1,5 @@
 import User from '@/user';
-import * as World from '@/world';
+import * as World from '../world';
 
 export const help_text = [
   'Usage: shout [...]',

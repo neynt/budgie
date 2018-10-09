@@ -1,7 +1,7 @@
-import * as Direction from '@/direction';
-import * as g from '@/global';
-import Room from '@/room';
-import User from '@/user';
+import * as Direction from '../direction';
+import * as g from '../global';
+import Room from '../room';
+import User from '../user';
 
 export const help_text = [
   'Usage: link [direction] [room id]',

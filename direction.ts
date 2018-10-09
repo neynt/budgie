@@ -26,7 +26,7 @@ export function opposite(d: t): t {
 }
 
 // "Alice goes ___"
-const _to_word: {[d: string]: string} = {
+export const _to_word: {[d: string]: string} = {
   'n': 'north',
   's': 'south',
   'e': 'east',
