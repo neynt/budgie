@@ -18,13 +18,13 @@ const static_files = [
   'jquery-3.1.0.min.js'
 ];
 
-static_files.forEach(function(filename) {
-  app.get('/static/' + filename, function(req, res) {
+static_files.forEach((filename) => {
+  app.get('/static/' + filename, (req, res) => {
     res.sendFile(__dirname + '/static/' + filename);
   });
 });
 
-app.get('/', function(req, res) {
+app.get('/', (req, res) => {
   res.sendFile(__dirname + '/static/index.html');
 });
 
@@ -36,7 +36,7 @@ setInterval(Database.save_all, 300000); // persist to disk every 5 min
 
 io.on('connection', handle_connection);
 
-server.listen(3069, function() {
+server.listen(3069, () => {
   console.log('Listening on :3069');
 });
 

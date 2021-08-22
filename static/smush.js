@@ -1,7 +1,7 @@
 (function () {
-    var socket = io();
-    var messages = $('#messages');
-    var inputbox = $('#inp');
+    const socket = io();
+    const messages = $('#messages');
+    const inputbox = $('#inp');
     inputbox.focus();
     function scrollToBottom() {
         window.scrollTo(0, document.body.scrollHeight);
@@ -10,36 +10,36 @@
         scrollToBottom();
     });
     $('form').submit(function () {
-        var val = inputbox.val();
+        const val = inputbox.val();
         if (val) {
             socket.emit('CHATMSG', val);
             inputbox.val('');
         }
         return false;
     });
-    socket.on('CHATMSG', function (msg) {
+    socket.on('CHATMSG', (msg) => {
         messages.append($('<div>').addClass('msg_block').append($('<p>').text(msg)));
         scrollToBottom();
     });
-    socket.on('IMGMSG', function (imgurl) {
-        var image = $('<img>').attr('src', imgurl);
+    socket.on('IMGMSG', (imgurl) => {
+        const image = $('<img>').attr('src', imgurl);
         messages.append($('<div>').addClass('msg_block').append(image));
         image.load(scrollToBottom);
         image.error(scrollToBottom);
         scrollToBottom();
     });
-    socket.on('GAMEMSG', function (msg) {
-        var msg_div = $('<div>');
+    socket.on('GAMEMSG', (msg) => {
+        const msg_div = $('<div>');
         msg_div.addClass('msg_block');
-        msg.lines.forEach(function (line) {
+        msg.lines.forEach(line => {
             msg_div.append($('<p>').text(line));
         });
         messages.append(msg_div);
         scrollToBottom();
     });
-    socket.on('CMPLXMSG', function (msg) {
-        var msg_div = $('<div>').addClass('msg_block');
-        msg.lines.forEach(function (line) {
+    socket.on('CMPLXMSG', (msg) => {
+        const msg_div = $('<div>').addClass('msg_block');
+        msg.lines.forEach(line => {
             switch (line.type) {
                 case 'title':
                     msg_div.append($('<h3>').text(line.text));
@@ -49,7 +49,7 @@
                     msg_div.append($('<p>').text(line.text));
                     break;
                 case 'img':
-                    var image = $('<img>').attr('src', line.text);
+                    const image = $('<img>').attr('src', line.text);
                     msg_div.append(image);
                     image.load(scrollToBottom);
                     image.error(scrollToBottom);
@@ -59,7 +59,7 @@
         messages.append(msg_div);
         scrollToBottom();
     });
-    socket.on('passwd', function (msg) {
+    socket.on('passwd', (msg) => {
         if (msg.enable)
             inputbox.prop({ type: 'password' });
         else
