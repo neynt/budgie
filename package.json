@@ -4,7 +4,7 @@
   "description": "i am a budgie",
   "dependencies": {
     "express": "^4.13.4",
-    "socket.io": "^2.1.1"
+    "socket.io": "^2.5.0"
   },
   "devDependencies": {
     "@types/express": "^4.16.0",
