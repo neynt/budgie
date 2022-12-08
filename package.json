@@ -3,7 +3,7 @@
   "verison": "0.0.1",
   "description": "i am a budgie",
   "dependencies": {
-    "express": "^4.13.4",
+    "express": "^4.17.3",
     "socket.io": "^2.1.1"
   },
   "devDependencies": {
